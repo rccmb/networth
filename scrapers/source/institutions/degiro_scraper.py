@@ -35,7 +35,7 @@ def execute_degiro_scraper(master_key: str) -> bool:
     geckodriver_path = values["geckodriver"]
 
     if not os.path.exists(profile_path):
-        print("[ERROR] Firefox profile path does not exist.")
+        print("[ERROR DEGIRO] Firefox profile path does not exist.")
         return False
     
     options = Options()
@@ -67,11 +67,11 @@ def execute_degiro_scraper(master_key: str) -> bool:
 
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')))
         element = driver.find_element(By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')
-        print("Total Account Balance:", element.get_attribute("title"), "€")
+        print("Total Degiro Balance:", element.get_attribute("title"), "€")
         return True
 
     except Exception as e:
-        print("[ERROR] Scraping failed:", e)
+        print("[ERROR DEGIRO] Scraping failed:", e)
         return False
 
     finally:

@@ -54,14 +54,14 @@ def execute_xtb_scraper(master_key: str) -> bool:
         value_text = value_text.strip()
 
         if value_text:
-            print("Total Portfolio Value:", value_text + " €")
+            print("Total XTB Balance:", value_text + " €")
         else:
-            print("[ERROR] Could not extract account value.")
+            print("[ERROR XTB] Could not extract account value.")
 
         return True
 
     except Exception as e:
-        print("[ERROR] Automation failed:", e)
+        print("[ERROR XTB] Automation failed:", e)
         return False
     
     finally:
