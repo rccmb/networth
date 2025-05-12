@@ -1,8 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
-
+    
 def execute_degiro_scraper(driver, username: str, password: str) -> bool:
     try:
         driver.get("https://trader.degiro.nl/login/")
@@ -23,6 +24,7 @@ def execute_degiro_scraper(driver, username: str, password: str) -> bool:
         driver.get("https://trader.degiro.nl/trader/#/profile/personal-settings")
 
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')))
+        time.sleep(3) # Degiro needs to get fresh value.
         element = driver.find_element(By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')
         print("Total Degiro Balance:", element.get_attribute("title"), "€")
         return True

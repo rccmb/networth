@@ -39,7 +39,6 @@ def execute_xtb_scraper(username: str, password: str) -> bool:
             print("Total XTB Balance:", value_text + " €")
         else:
             print("[ERROR XTB] Could not extract account value.")
-
         return True
 
     except Exception as e:
