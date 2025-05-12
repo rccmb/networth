@@ -24,13 +24,15 @@ def decrypt(cipher_text: str, f: Fernet) -> str:
     return decrypted
 
 
-def get_data(master_key: str, degiro_user: str, degiro_pass: str):
+def get_data(master_key: str, degiro_user: str, degiro_pass: str, xtb_user: str, xtb_pass: str):
     salt = os.urandom(16)
     key = derive_key(master_key, salt)
     f = Fernet(key)
     
     return {
         "salt": base64.b64encode(salt).decode(),
-        "username": encrypt(degiro_user, f),
-        "password": encrypt(degiro_pass, f),
+        "username_degiro": encrypt(degiro_user, f),
+        "password_degiro": encrypt(degiro_pass, f),
+        "username_xtb": encrypt(xtb_user, f),
+        "password_xtb": encrypt(xtb_pass, f),
     }

@@ -21,8 +21,8 @@ def execute_degiro_scraper(master_key: str) -> bool:
         key = derive_key(master_key, salt)
         fernet = Fernet(key)
 
-        username = decrypt(data["username"], fernet)
-        password = decrypt(data["password"], fernet)
+        username = decrypt(data["username_degiro"], fernet)
+        password = decrypt(data["password_degiro"], fernet)
         
     except Exception as e:
         print("[ERROR] Decrypting secrets.", e)
@@ -31,7 +31,7 @@ def execute_degiro_scraper(master_key: str) -> bool:
     with open("values.json", "r") as f:
         values = json.load(f)
 
-    profile_path = values["user_data_directory"]
+    profile_path = values["user_data_directory_firefox"]
     geckodriver_path = values["geckodriver"]
 
     if not os.path.exists(profile_path):
@@ -48,25 +48,18 @@ def execute_degiro_scraper(master_key: str) -> bool:
     driver = webdriver.Firefox(service=service, options=options)
 
     try:
-        print("Fetching degiro.")
         driver.get("https://trader.degiro.nl/login/")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "username")))
 
-        print("Finding username.")
         user_input = driver.find_element(By.NAME, "username")
-        
-        print("Finding password.")
         pass_input = driver.find_element(By.NAME, "password")
 
         user_input.clear()
-        print("Sending username.")
         user_input.send_keys(username)
 
         pass_input.clear()
-        print("Sending password.")
         pass_input.send_keys(password)
 
-        print("Finding login button.")
         login_btn = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
         login_btn.click()
 

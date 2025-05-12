@@ -15,8 +15,11 @@ def main():
     
     degiro_user = input("DEGIRO_USERNAME: ")
     degiro_pass = getpass("DEGIRO_PASSWORD: ")
+   
+    xtb_user = input("XTB_USERNAME: ")
+    xtb_pass = getpass("XTB_PASSWORD: ")
 
-    data = encryption.get_data(master_key, degiro_user, degiro_pass)
+    data = encryption.get_data(master_key, degiro_user, degiro_pass, xtb_user, xtb_pass)
     
     if os.path.exists("secrets.json"):
         os.remove("secrets.json")
