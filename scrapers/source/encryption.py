@@ -1,4 +1,5 @@
 import base64, os
+import json
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet
@@ -38,3 +39,35 @@ def get_data(master_key: str, degiro_user: str, degiro_pass: str, xtb_user: str,
         "username_cgd": encrypt(cgd_user, f),
         "password_cgd": encrypt(cgd_pass, f),
     }
+    
+    
+def get_secrets(master_key: str):
+    try:
+        with open("secrets.json", "r") as f:
+            data = json.load(f)
+        
+        salt = base64.b64decode(data["salt"])
+        key = derive_key(master_key, salt)
+        fernet = Fernet(key)
+
+        degiro_user = decrypt(data["username_degiro"], fernet)
+        degiro_pass = decrypt(data["password_degiro"], fernet)
+        
+        xtb_user = decrypt(data["username_xtb"], fernet)
+        xtb_pass = decrypt(data["password_xtb"], fernet)
+        
+        cgd_user = decrypt(data["username_cgd"], fernet)
+        cgd_pass = decrypt(data["password_cgd"], fernet)
+        
+        return {
+            "username_degiro": degiro_user,
+            "password_degiro": degiro_pass,
+            "username_xtb": xtb_user,
+            "password_xtb": xtb_pass,
+            "username_cgd": cgd_user,
+            "password_cgd": cgd_pass
+        }
+        
+    except Exception as e:
+        print("[ERROR] Decrypting secrets.", e)
+        return False

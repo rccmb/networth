@@ -1,15 +1,26 @@
-import json
 from getpass import getpass
 from institutions.degiro_scraper import execute_degiro_scraper
 from institutions.xtb_scraper import execute_xtb_scraper
 from institutions.cgd_scraper import execute_cgd_scraper
-
+from driver import initialize_driver
+from encryption import get_secrets      
+      
       
 def main():
     master_key = getpass("MASTER: ")
-    execute_degiro_scraper(master_key)
-    execute_xtb_scraper(master_key)
-    execute_cgd_scraper(master_key)
+    secrets = get_secrets(master_key)
+    
+    if secrets == False:
+        return
+    
+    # Run manual first.
+    execute_xtb_scraper(secrets["username_xtb"], secrets["password_xtb"])
+    
+    # Run automated second.
+    driver = initialize_driver()
+    execute_degiro_scraper(driver, secrets["username_degiro"], secrets["password_degiro"])
+    execute_cgd_scraper(driver, secrets["username_cgd"], secrets["password_cgd"])
+    driver.quit()
     
 
 if __name__ == "__main__":
