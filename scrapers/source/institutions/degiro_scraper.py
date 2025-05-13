@@ -26,9 +26,10 @@ def execute_degiro_scraper(driver, username: str, password: str) -> bool:
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')))
         time.sleep(3) # Degiro needs to get fresh value.
         element = driver.find_element(By.CSS_SELECTOR, '[data-id="totalPortfolio"][title]')
-        print("Total Degiro Balance:", element.get_attribute("title"), "€")
-        return True
+        balance_text = element.get_attribute("title")
+
+        return balance_text
 
     except Exception as e:
         print("[ERROR DEGIRO] Scraping failed:", e)
-        return False
+        return None

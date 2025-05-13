@@ -24,12 +24,14 @@ def execute_cgd_scraper(driver, username: str, password: str) -> bool:
         WebDriverWait(driver, 10).until(EC.url_contains("caixadirectaonline.cgd.pt"))
         driver.get("https://caixadirectaonline.cgd.pt/cdo/private/comuns/consultaPosicaoGlobal.seam")
 
-        saldo_span = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "saldoContabilisticoAssets")))
-
-        saldo = saldo_span.text.strip()
-        print("Total CGD Balance:", saldo + " €")
-        return True
+        balance_span = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "saldoContabilisticoAssets")))
+        balance_text = balance_span.text.strip()
+        
+        if balance_text is None:
+            print("[ERROR CGD] Could not extract account value.")
+            
+        return balance_text
 
     except Exception as e:
         print("[ERROR CGD] Scraping failed:", e)
-        return False
+        return None

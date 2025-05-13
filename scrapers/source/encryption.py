@@ -43,7 +43,7 @@ def get_data(master_key: str, degiro_user: str, degiro_pass: str, xtb_user: str,
     
 def get_secrets(master_key: str):
     try:
-        with open("secrets.json", "r") as f:
+        with open("secrets_temporary.json", "r") as f:
             data = json.load(f)
         
         salt = base64.b64decode(data["salt"])

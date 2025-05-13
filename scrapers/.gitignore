@@ -1,4 +1,5 @@
-secrets.json
+secrets_temporary.json
+secrets_persistent.json
 values.json
 __pycache__
 .venv

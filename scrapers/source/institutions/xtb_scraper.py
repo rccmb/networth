@@ -32,18 +32,17 @@ def execute_xtb_scraper(username: str, password: str) -> bool:
         screenshot = ImageGrab.grab(bbox=bbox)
         screenshot_cv = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
 
-        value_text = pytesseract.image_to_string(screenshot_cv, config="--psm 7 -c tessedit_char_whitelist=0123456789.,")
-        value_text = value_text.strip()
+        balance_text = pytesseract.image_to_string(screenshot_cv, config="--psm 7 -c tessedit_char_whitelist=0123456789.,")
+        balance_text = balance_text.strip()
 
-        if value_text:
-            print("Total XTB Balance:", value_text + " €")
-        else:
+        if balance_text is None:
             print("[ERROR XTB] Could not extract account value.")
-        return True
+            
+        return balance_text
 
     except Exception as e:
         print("[ERROR XTB] Automation failed:", e)
-        return False
+        return None
     
     finally:
         pyautogui.hotkey('ctrl', 'w')
