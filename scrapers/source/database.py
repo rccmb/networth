@@ -18,13 +18,14 @@ class Database:
             self.client = None
             
             
-    def insert_balance(self, source: str, balance: float):
+    def insert_balance(self, source: str, balance: float, run_id: int = 0):
         if not self.client:
             print("[ERROR::DB] Supabase client not initialized.")
             return None
         
         try:
             data = {
+                "run_id": run_id,
                 "source": source,
                 "balance": balance,
             }
@@ -42,10 +43,24 @@ class Database:
             return None
         
         try:
+            # Obtaining the last run id.
+            run_id_result = (
+                self.client
+                .table("daily_source_balance")
+                .select("run_id")
+                .order("run_id", desc=True)
+                .limit(1)
+                .execute()
+            )
+            
+            last_run_id = 0
+            if run_id_result.data and len(run_id_result.data) > 0:
+                last_run_id = run_id_result.data[0].get("run_id", 0)
+            
             responses = []
             
             for value in array:
-                responses.append({"source": value["source"], "response": self.insert_balance(value["source"], value["value"])})
+                responses.append({"source": value["source"], "response": self.insert_balance(value["source"], value["value"], last_run_id + 1)})
             
             return responses
             
