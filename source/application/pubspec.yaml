@@ -8,7 +8,8 @@ environment:
 
 dependencies:
   flutter:
-    sdk: flutter
+    sdk: flutter  
+  fl_chart: 1.0.0
 
 dev_dependencies:
   flutter_test:
