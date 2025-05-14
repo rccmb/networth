@@ -36,6 +36,9 @@ class _PageDashboardState extends State<PageDashboard> {
   /// Period labels for the data to be displayed in the chart.
   final List<String> _periodLabels = ["1W", '1M', '3M', "YTD", '1Y', 'MAX'];
 
+  /// Period changes for the networth texts. [PERIOD][START, NOW].
+  final List<List<double>> _periodChange = List.filled(6, [0, 0]);
+
   /// Function to select the current period to display.
   void selectPeriod(int i) {
     setState(() {
@@ -126,6 +129,16 @@ class _PageDashboardState extends State<PageDashboard> {
       final List<FlSpot> spots = [FlSpot(0, 0)];
       for (int j = 0; j < rawList.length; j++) {
         final y = rawList[j]['y'] as double;
+
+        if (j == 0) {
+          // First spot.
+          _periodChange[i][0] = y;
+        }
+        if (j == rawList.length - 1) {
+          // Last spot.
+          _periodChange[i][1] = y;
+        }
+
         spots.add(FlSpot(j.toDouble() + 1, y));
       }
 
@@ -177,7 +190,7 @@ class _PageDashboardState extends State<PageDashboard> {
 
                         /// Porfolio value comparison.
                         Row(
-                          children: const [
+                          children: [
                             /// Portfolio value at the beginning of the time period.
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +204,9 @@ class _PageDashboardState extends State<PageDashboard> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'TEMPLATE',
+                                  euroFormat.format(
+                                    _periodChange[_selectedPeriod][0],
+                                  ),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -207,19 +222,51 @@ class _PageDashboardState extends State<PageDashboard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'CURRENT',
+                                  'CHANGE',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
                                   ),
                                 ),
                                 SizedBox(height: 4),
-                                Text(
-                                  'TEMPLATE',
-                                  style: TextStyle(
-                                    color: Colors.greenAccent,
-                                    fontSize: 16,
-                                  ),
+                                Builder(
+                                  builder: (context) {
+                                    if (_periodChange[_selectedPeriod][1] -
+                                            _periodChange[_selectedPeriod][0] >
+                                        0) {
+                                      return Text(
+                                        "+ ${euroFormat.format(_periodChange[_selectedPeriod][1] - _periodChange[_selectedPeriod][0])}",
+                                        style: TextStyle(
+                                          color: Colors.greenAccent,
+                                          fontSize: 16,
+                                        ),
+                                      );
+                                    }
+                                    if (_periodChange[_selectedPeriod][1] -
+                                            _periodChange[_selectedPeriod][0] ==
+                                        0) {
+                                      return Text(
+                                        euroFormat.format(
+                                          _periodChange[_selectedPeriod][1] -
+                                              _periodChange[_selectedPeriod][0],
+                                        ),
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 16,
+                                        ),
+                                      );
+                                    }
+                                    return Text(
+                                      euroFormat.format(
+                                        _periodChange[_selectedPeriod][1] -
+                                            _periodChange[_selectedPeriod][0],
+                                      ),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 16,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
