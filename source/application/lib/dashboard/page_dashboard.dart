@@ -17,6 +17,16 @@ class _PageDashboardState extends State<PageDashboard> {
     _loadChartData();
   }
 
+  // /// Currently selected page.
+  // int _selectedPage = 0;
+
+  // /// Change the page.
+  // void _onPageSelect(int index) {
+  //   setState(() {
+  //     _selectedPage = index;
+  //   });
+  // }
+
   /// Euro formatter.
   final euroFormat = NumberFormat.simpleCurrency(locale: 'pt_PT', name: 'EUR');
 
@@ -38,6 +48,9 @@ class _PageDashboardState extends State<PageDashboard> {
 
   /// Period changes for the networth texts. [PERIOD][START, NOW].
   final List<List<double>> _periodChange = List.filled(6, [0, 0]);
+
+  /// The distribution of wealth per source { SOURCE, WEALTH }
+  Map<String, double> _sourceDistribution = {};
 
   /// Function to select the current period to display.
   void selectPeriod(int i) {
@@ -145,12 +158,73 @@ class _PageDashboardState extends State<PageDashboard> {
       tempSpots[i] = spots;
     }
 
+    // Get the latest run (most recent date across all rows).
+    final latestRunId =
+        groupedByRun.entries.reduce((a, b) {
+          final dateA = a.value
+              .map((e) => DateTime.parse(e['date']))
+              .reduce((a, b) => a.isAfter(b) ? a : b);
+          final dateB = b.value
+              .map((e) => DateTime.parse(e['date']))
+              .reduce((a, b) => a.isAfter(b) ? a : b);
+          return dateA.isAfter(dateB) ? a : b;
+        }).key;
+
+    // Map a source with a corresponding value.
+    final Map<String, double> sourceDistribution = {};
+    for (final row in groupedByRun[latestRunId]!) {
+      final source = row['source'] as String?;
+      final balance = row['balance'];
+      if (source == null || balance == null) continue;
+      sourceDistribution[source] =
+          (sourceDistribution[source] ?? 0) + (balance as num).toDouble();
+    }
+
     setState(() {
+      _sourceDistribution = sourceDistribution;
       for (int i = 0; i < 6; i++) {
         _periodSpots[i] = tempSpots[i]!;
       }
       _isLoading = false;
     });
+  }
+
+  /// Helper method to get the sections for the pie chart.
+  List<PieChartSectionData> _getSections() {
+    final total = _sourceDistribution.values.fold(0.0, (a, b) => a + b);
+
+    return _sourceDistribution.entries.map((entry) {
+      final percentage = entry.value / total;
+      final isSmall = percentage < 0.05; // hide text for very small slices
+
+      return PieChartSectionData(
+        color: _colorFromLabel(entry.key),
+        value: percentage * 100,
+        radius: 30,
+        title: "",
+        titleStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      );
+    }).toList();
+  }
+
+  /// Helper method to get the color for the pie chart.
+  Color _colorFromLabel(String label) {
+    final colors = [
+      Colors.blue,
+      Colors.redAccent,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+      Colors.pinkAccent,
+      Colors.amber,
+      Colors.cyan,
+    ];
+    return colors[label.hashCode % colors.length];
   }
 
   @override
@@ -162,8 +236,9 @@ class _PageDashboardState extends State<PageDashboard> {
           if (_isLoading == true) {
             return Text("Hol'up");
           } else {
-            return Column(
+            return ListView(
               children: [
+                /// This is the container that holds the portfolio value graph, with time period selects.
                 Container(
                   margin: const EdgeInsets.all(15.0),
                   width: double.infinity,
@@ -176,6 +251,16 @@ class _PageDashboardState extends State<PageDashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        /// Portfolio Value Graph
+                        const Text(
+                          "Networth",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
                         /// Total Portfolio Value.
                         Text(
                           _currentBalance.toString(),
@@ -186,7 +271,7 @@ class _PageDashboardState extends State<PageDashboard> {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
 
                         /// Porfolio value comparison.
                         Row(
@@ -400,11 +485,113 @@ class _PageDashboardState extends State<PageDashboard> {
                     ),
                   ),
                 ),
+
+                /// This is the container that holds the pie chart for the different grouped values.
+                Container(
+                  margin: const EdgeInsets.all(15.0),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: const Color(0xFF1E1E2C),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// Title of the pie chart.
+                      const Text(
+                        "Distribution",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      /// The actual pie chart.
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: PieChart(
+                              PieChartData(
+                                sections: _getSections(),
+                                sectionsSpace: 3,
+                                centerSpaceRadius: 50,
+                                pieTouchData: PieTouchData(enabled: true),
+                                centerSpaceColor: const Color(0xFF1E1E2C),
+                              ),
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "${_sourceDistribution.length} SOURCES",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      /// Legend for the pie chart.
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            _sourceDistribution.entries.map((entry) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(3),
+                                        color: _colorFromLabel(entry.key),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "${entry.key} — ${euroFormat.format(entry.value)}",
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           }
         },
       ),
+
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.bar_chart),
+      //       label: 'Sources',
+      //     ),
+      //   ],
+      //   currentIndex: _selectedPage,
+      //   selectedItemColor: Colors.amber[800],
+      //   onTap: _onPageSelect,
+      // ),
     );
   }
 }
