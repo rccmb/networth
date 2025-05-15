@@ -40,10 +40,9 @@ def get_data(master_key: str, degiro_user: str, degiro_pass: str, xtb_user: str,
         "password_cgd": encrypt(cgd_pass, f),
     }
     
-    
 def get_secrets(master_key: str):
     try:
-        with open("secrets_temporary.json", "r") as f:
+        with open("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\secrets_temporary.json", "r") as f:
             data = json.load(f)
         
         salt = base64.b64decode(data["salt"])
@@ -70,4 +69,5 @@ def get_secrets(master_key: str):
         
     except Exception as e:
         print("[ERROR] Decrypting secrets.", e)
+        input("Press Enter to continue...")
         return False

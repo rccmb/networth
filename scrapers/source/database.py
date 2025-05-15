@@ -5,7 +5,7 @@ from supabase import create_client, Client
 class Database:
     def __init__(self):
         try:
-            with open("secrets_persistent.json", "r") as f:
+            with open("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\secrets_persistent.json", "r") as f:
                 secrets = json.load(f)
 
             supabase_url = secrets["supabase_url"]
@@ -15,12 +15,14 @@ class Database:
 
         except Exception as e:
             print("[ERROR::DB] Could not initialize Supabase client:", e)
+            input("Press Enter to continue...")
             self.client = None
             
             
     def insert_balance(self, source: str, balance: float, run_id: int = 0):
         if not self.client:
             print("[ERROR::DB] Supabase client not initialized.")
+            input("Press Enter to continue...")
             return None
         
         try:
@@ -34,12 +36,14 @@ class Database:
         
         except Exception as e:
             print("[ERROR::DB] Insert failed:", e)
+            input("Press Enter to continue...")
             return None
 
     
     def insert_multiple(self, array):
         if not self.client:
             print("[ERROR::DB] Supabase client not initialized.")
+            input("Press Enter to continue...")
             return None
         
         try:
@@ -66,5 +70,6 @@ class Database:
             
         except Exception as e:
             print("[ERROR::DB] Insert failed:", e)
+            input("Press Enter to continue...")
             return None
             

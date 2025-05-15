@@ -24,10 +24,10 @@ def main():
 
     data = encryption.get_data(master_key, degiro_user, degiro_pass, xtb_user, xtb_pass, cgd_user, cgd_pass)
     
-    if os.path.exists("secrets_temporary.json"):
-        os.remove("secrets_temporary.json")
+    if os.path.exists("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\secrets_temporary.json"):
+        os.remove("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\secrets_temporary.json")
     
-    with open("secrets_temporary.json", "w") as f:
+    with open("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\secrets_temporary.json", "w") as f:
         json.dump(data, f, indent=4)
 
 

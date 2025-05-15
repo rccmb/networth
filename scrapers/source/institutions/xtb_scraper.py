@@ -42,6 +42,7 @@ def execute_xtb_scraper(username: str, password: str) -> bool:
 
     except Exception as e:
         print("[ERROR XTB] Automation failed:", e)
+        input("Press Enter to continue...")
         return None
     
     finally:

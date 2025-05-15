@@ -6,7 +6,7 @@ from selenium.webdriver.firefox.service import Service
 
 
 def initialize_driver():
-    with open("values.json", "r") as f:
+    with open("C:\\Users\\rodri\\Desktop\\Projetos\\networth\\scrapers\\values.json", "r") as f:
         values = json.load(f)
 
     profile_path = values["user_data_directory_firefox"]
@@ -14,6 +14,7 @@ def initialize_driver():
 
     if not os.path.exists(profile_path):
         print("[ERROR] Firefox profile path does not exist.")
+        input("Press Enter to continue...")
         return False
     
     options = Options()

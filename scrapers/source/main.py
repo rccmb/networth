@@ -25,6 +25,7 @@ def main():
     secrets = get_secrets(master_key)
     
     if secrets == False:
+        input("Press Enter to continue...")
         return
     
     start = time.time()
@@ -52,6 +53,7 @@ def main():
     
     if xtb_text is None or degiro_text is None or cgd_text is None:
         print("[ERROR] Errors have occurred, nothing will be saved.")
+        input("Press Enter to continue...")
         return
     
     array = [

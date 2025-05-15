@@ -34,4 +34,5 @@ def execute_cgd_scraper(driver, username: str, password: str) -> bool:
 
     except Exception as e:
         print("[ERROR CGD] Scraping failed:", e)
+        input("Press Enter to continue...")
         return None

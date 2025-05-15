@@ -3,3 +3,6 @@ secrets_persistent.json
 values.json
 __pycache__
 .venv
+/build
+/dist
+main.spec
