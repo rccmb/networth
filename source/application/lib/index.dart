@@ -1,6 +1,7 @@
-import 'package:application/business/database.dart';
-import 'package:application/dashboard/component_distribution.dart';
-import 'package:application/dashboard/component_networth.dart';
+import 'package:application/helper/database.dart';
+import 'package:application/home/component_distribution.dart';
+import 'package:application/home/component_networth.dart';
+import 'package:application/sources/component_source.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +42,12 @@ class _PageDashboardState extends State<PageDashboard> {
   /// Array with the data that will be displayed in the chart.
   final List<List<FlSpot>> _periodSpots = List.filled(6, []);
 
+  /// Source spots grouped by name to be used in individual sources.
+  Map<String, List<FlSpot>> _sourceSpotsByName = {};
+
+  /// Names of the sources.
+  List<String> _sourceNames = [];
+
   /// Period changes for the networth texts. [PERIOD][START, NOW].
   final List<List<double>> _periodChange = List.filled(6, [0, 0]);
 
@@ -54,6 +61,8 @@ class _PageDashboardState extends State<PageDashboard> {
     setState(() {
       _currentBalance = result.currentBalance;
       _sourceDistribution = result.sourceDistribution;
+      _sourceSpotsByName = result.sourceSpotsByName;
+      _sourceNames = _sourceSpotsByName.keys.toList();
       for (int i = 0; i < 6; i++) {
         _periodSpots[i] = result.periodSpots[i];
         _periodChange[i] = result.periodChange[i];
@@ -71,30 +80,48 @@ class _PageDashboardState extends State<PageDashboard> {
           if (_isLoading == true) {
             return Text("Loading...");
           } else {
-            return ListView(
-              children: [
-                /// Networth widget.
-                ComponentNetworth(
-                  currentBalance: _currentBalance,
-                  euroFormat: _euroFormat,
-                  periodSpots: _periodSpots,
-                  periodChange: _periodChange,
-                ),
+            /// First page, Home.
+            if (_selectedPage != 1) {
+              return ListView(
+                children: [
+                  /// Networth widget.
+                  ComponentNetworth(
+                    currentBalance: _currentBalance,
+                    euroFormat: _euroFormat,
+                    periodSpots: _periodSpots,
+                    periodChange: _periodChange,
+                  ),
 
-                /// Distribution widget.
-                ComponentDistribution(
-                  sourceDistribution: _sourceDistribution,
-                  euroFormat: _euroFormat,
-                ),
-              ],
-            );
+                  /// Distribution widget.
+                  ComponentDistribution(
+                    sourceDistribution: _sourceDistribution,
+                    euroFormat: _euroFormat,
+                  ),
+                ],
+              );
+            }
+            /// Second page, Source Evolution
+            else {
+              return ListView.builder(
+                itemCount: _sourceNames.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final sourceName = _sourceNames[index];
+                  final spots = _sourceSpotsByName[sourceName]!;
+                  return ComponentSource(
+                    sourceName: sourceName,
+                    spots: spots,
+                    euroFormat: _euroFormat,
+                  );
+                },
+              );
+            }
           }
         },
       ),
 
       /// Bottom navigation bar has two options:
-      /// - Dashboard (Networth & Distribution)
-      /// - Source Evolution
+      /// - Home (Networth & Distribution)
+      /// - Source Evolution (Individual Source Graphing)
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),

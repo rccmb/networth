@@ -1,4 +1,4 @@
-import 'package:application/dashboard/page_dashboard.dart';
+import 'package:application/index.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;

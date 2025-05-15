@@ -9,6 +9,7 @@ Future<
     List<List<FlSpot>> periodSpots,
     List<List<double>> periodChange,
     Map<String, double> sourceDistribution,
+    Map<String, List<FlSpot>> sourceSpotsByName,
   })
 >
 fetchAndProcessChartData(NumberFormat euroFormat) async {
@@ -16,6 +17,37 @@ fetchAndProcessChartData(NumberFormat euroFormat) async {
       .from('daily_source_balance')
       .select()
       .order('date');
+
+  final Map<String, List<Map<String, dynamic>>> sourceRawPoints = {};
+  for (final row in response) {
+    final source = row['source'];
+    final dateStr = row['date'];
+    final balance = row['balance'];
+
+    if (source == null || balance == null || dateStr == null) continue;
+
+    final date = DateTime.parse(dateStr);
+    sourceRawPoints.putIfAbsent(source, () => []).add({
+      'date': date,
+      'balance': (balance as num).toDouble(),
+    });
+  }
+
+  final Map<String, List<FlSpot>> sourceSpotsByName = {};
+
+  for (final entry in sourceRawPoints.entries) {
+    final source = entry.key;
+    final data =
+        entry.value..sort(
+          (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
+        );
+
+    final List<FlSpot> spots = [FlSpot(0, 0)];
+    for (int i = 0; i < data.length; i++) {
+      spots.add(FlSpot(i.toDouble() + 1, data[i]['balance']));
+    }
+    sourceSpotsByName[source] = spots;
+  }
 
   final Map<int, List<Map<String, dynamic>>> groupedByRun = {};
   for (final row in response) {
@@ -118,5 +150,6 @@ fetchAndProcessChartData(NumberFormat euroFormat) async {
     periodSpots: periodSpots,
     periodChange: periodChange,
     sourceDistribution: sourceDistribution,
+    sourceSpotsByName: sourceSpotsByName,
   );
 }
