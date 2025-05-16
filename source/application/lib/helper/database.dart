@@ -10,6 +10,7 @@ Future<
     List<List<double>> periodChange,
     Map<String, double> sourceDistribution,
     Map<String, List<FlSpot>> sourceSpotsByName,
+    Map<DateTime, double> dailyTotals,
   })
 >
 fetchAndProcessChartData(NumberFormat euroFormat) async {
@@ -145,11 +146,46 @@ fetchAndProcessChartData(NumberFormat euroFormat) async {
         (sourceDistribution[source] ?? 0) + (balance as num).toDouble();
   }
 
+  final Map<DateTime, Map<String, dynamic>> latestRunPerDay = {};
+
+  for (final entry in groupedByRun.entries) {
+    final rows = entry.value;
+    final latestTimestamp = rows
+        .map((e) => DateTime.parse(e['date']))
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+    final day = DateTime(
+      latestTimestamp.year,
+      latestTimestamp.month,
+      latestTimestamp.day,
+    );
+
+    final existing = latestRunPerDay[day];
+    if (existing == null ||
+        latestTimestamp.isAfter(existing['timestamp'] as DateTime)) {
+      latestRunPerDay[day] = {'timestamp': latestTimestamp, 'rows': rows};
+    }
+  }
+
+  final Map<DateTime, double> dailyTotals = {};
+
+  for (final entry in latestRunPerDay.entries) {
+    final rows = entry.value['rows'] as List<Map<String, dynamic>>;
+    final day = entry.key;
+
+    final total = rows.fold<double>(
+      0,
+      (sum, e) => sum + (e['balance'] as num).toDouble(),
+    );
+
+    dailyTotals[day] = total;
+  }
+
   return (
     currentBalance: currentBalance,
     periodSpots: periodSpots,
     periodChange: periodChange,
     sourceDistribution: sourceDistribution,
     sourceSpotsByName: sourceSpotsByName,
+    dailyTotals: dailyTotals,
   );
 }

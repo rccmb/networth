@@ -73,6 +73,7 @@ def main():
     
     end = time.time()
     print("Time elapsed:", end - start, "seconds.")
+    input("Press Enter to continue...")
 
 if __name__ == "__main__":
     main()

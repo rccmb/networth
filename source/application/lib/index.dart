@@ -1,5 +1,6 @@
 import 'package:application/helper/database.dart';
 import 'package:application/home/component_distribution.dart';
+import 'package:application/home/component_heatmap.dart';
 import 'package:application/home/component_networth.dart';
 import 'package:application/sources/component_source.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,8 @@ class _PageDashboardState extends State<PageDashboard> {
   /// The distribution of wealth per source { SOURCE, WEALTH }
   Map<String, double> _sourceDistribution = {};
 
+  Map<DateTime, double> _dailyTotals = {};
+
   /// Populating _periodSpots with the correct data.
   Future<void> _loadChartData() async {
     final result = await fetchAndProcessChartData(_euroFormat);
@@ -67,6 +70,7 @@ class _PageDashboardState extends State<PageDashboard> {
         _periodSpots[i] = result.periodSpots[i];
         _periodChange[i] = result.periodChange[i];
       }
+      _dailyTotals = result.dailyTotals;
       _isLoading = false;
     });
   }
@@ -95,6 +99,12 @@ class _PageDashboardState extends State<PageDashboard> {
                   /// Distribution widget.
                   ComponentDistribution(
                     sourceDistribution: _sourceDistribution,
+                    euroFormat: _euroFormat,
+                  ),
+
+                  // Heatmap widget.
+                  ComponentHeatmap(
+                    dailyTotals: _dailyTotals,
                     euroFormat: _euroFormat,
                   ),
                 ],
