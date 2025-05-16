@@ -53,6 +53,28 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
     return gains;
   }
 
+  /// Calculate the daily average.
+  Map<String, double> calculateDailyStats(Map<DateTime, double> dailyGains) {
+    double total = 0;
+    int entryCount = 0;
+
+    double minimum = double.infinity;
+    double maximum = double.negativeInfinity;
+
+    dailyGains.forEach((key, value) {
+      total += value;
+      entryCount += 1;
+      if (maximum < value) maximum = value;
+      if (minimum > value) minimum = value;
+    });
+
+    return {
+      "average": total / entryCount,
+      "maximum": maximum,
+      "minimum": minimum,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final weeks = generateTrackedWeeks();
@@ -60,6 +82,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
     final sortedDays =
         dailyGains.keys.toList()
           ..sort((a, b) => b.compareTo(a)); // Most recent first. Right square.
+    final dailyStats = calculateDailyStats(dailyGains);
 
     return Container(
       margin: const EdgeInsets.all(15.0),
@@ -136,6 +159,165 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                     );
                   }).toList(),
             ),
+          ),
+
+          const SizedBox(height: 20),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    "Average / Day",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      if (dailyStats["average"]! > 0) {
+                        return Text(
+                          "+${widget.euroFormat.format(dailyStats["average"]!)}",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else if (dailyStats["average"]! == 0) {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["average"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["average"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    "Minimum",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      if (dailyStats["minimum"]! > 0) {
+                        return Text(
+                          "+${widget.euroFormat.format(dailyStats["minimum"]!)}",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else if (dailyStats["minimum"]! == 0) {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["minimum"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["minimum"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    "Maximum",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      if (dailyStats["maximum"]! > 0) {
+                        return Text(
+                          "+${widget.euroFormat.format(dailyStats["maximum"]!)}",
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else if (dailyStats["maximum"]! == 0) {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["maximum"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      } else {
+                        return Text(
+                          widget.euroFormat.format(dailyStats["maximum"]!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.0,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
 
           const SizedBox(height: 20),
