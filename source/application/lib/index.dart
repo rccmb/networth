@@ -1,8 +1,11 @@
-import 'package:application/helper/database.dart';
+import 'package:application/helper/data_chart.dart';
+import 'package:application/helper/data_transactions.dart';
 import 'package:application/home/component_distribution.dart';
 import 'package:application/home/component_heatmap.dart';
 import 'package:application/home/component_networth.dart';
+import 'package:application/models/transaction.dart';
 import 'package:application/sources/component_source.dart';
+import 'package:application/transactions/component_transaction_list.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -18,18 +21,11 @@ class _PageDashboardState extends State<PageDashboard> {
   @override
   void initState() {
     super.initState();
-    _loadChartData();
+    _loadData();
   }
 
   /// Currently selected page.
   int _selectedPage = 0;
-
-  /// Change the page.
-  void _onPageSelect(int index) {
-    setState(() {
-      _selectedPage = index;
-    });
-  }
 
   /// Euro formatter.
   final _euroFormat = NumberFormat.simpleCurrency(locale: 'pt_PT', name: 'EUR');
@@ -55,7 +51,11 @@ class _PageDashboardState extends State<PageDashboard> {
   /// The distribution of wealth per source { SOURCE, WEALTH }
   Map<String, double> _sourceDistribution = {};
 
+  /// Daily total values.
   Map<DateTime, double> _dailyTotals = {};
+
+  /// Transactions list to be passed to the transactions screen.
+  List<Transaction> _transactions = [];
 
   /// Populating _periodSpots with the correct data.
   Future<void> _loadChartData() async {
@@ -71,21 +71,48 @@ class _PageDashboardState extends State<PageDashboard> {
         _periodChange[i] = result.periodChange[i];
       }
       _dailyTotals = result.dailyTotals;
+    });
+  }
+
+  /// Populating the transactions.
+  Future<void> _loadTransactions() async {
+    final result = await fetchTransactions();
+    setState(() {
+      _transactions = result;
+    });
+  }
+
+  /// Method responsible for loading relevant data.
+  Future<void> _loadData() async {
+    await Future.wait([_loadChartData(), _loadTransactions()]);
+    setState(() {
       _isLoading = false;
+    });
+  }
+
+  /// Change the page.
+  void _onPageSelect(int index) {
+    setState(() {
+      _selectedPage = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Networth")),
+      appBar: AppBar(
+        title: const Text("Networth"),
+        backgroundColor: const Color(0xFF040C15),
+        foregroundColor: Colors.white,
+        titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      ),
       body: Builder(
         builder: (context) {
           if (_isLoading == true) {
             return Text("Loading...");
           } else {
             /// First page, Home.
-            if (_selectedPage != 1) {
+            if (_selectedPage == 0) {
               return ListView(
                 children: [
                   /// Networth widget.
@@ -111,7 +138,7 @@ class _PageDashboardState extends State<PageDashboard> {
               );
             }
             /// Second page, Source Evolution
-            else {
+            else if (_selectedPage == 1) {
               return ListView.builder(
                 itemCount: _sourceNames.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -125,6 +152,13 @@ class _PageDashboardState extends State<PageDashboard> {
                 },
               );
             }
+            /// Third page, Transactions
+            else {
+              return ComponentTransactionList(
+                euroFormat: _euroFormat,
+                transactions: _transactions,
+              );
+            }
           }
         },
       ),
@@ -134,14 +168,26 @@ class _PageDashboardState extends State<PageDashboard> {
       /// - Source Evolution (Individual Source Graphing)
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Home',
+            backgroundColor: Colors.white,
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
             label: 'Sources',
+            backgroundColor: Colors.white,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.payments),
+            label: 'Transactions',
+            backgroundColor: Colors.white,
           ),
         ],
+        backgroundColor: const Color(0xFF040C15),
         currentIndex: _selectedPage,
-        selectedItemColor: Colors.lightBlueAccent,
+        selectedItemColor: Colors.cyan,
+        unselectedItemColor: Colors.white70,
         onTap: _onPageSelect,
       ),
     );

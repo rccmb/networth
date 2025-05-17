@@ -1,11 +1,14 @@
 import 'package:application/index.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'dart:convert';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final jsonSecrets = await rootBundle.loadString('assets/secrets.json');
   final secrets = json.decode(jsonSecrets);
@@ -25,6 +28,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: PageDashboard(),
+      theme: ThemeData(scaffoldBackgroundColor: const Color(0xFF040C15)),
       debugShowCheckedModeBanner: false,
     );
   }
