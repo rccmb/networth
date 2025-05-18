@@ -1,3 +1,5 @@
+import 'package:application/calculator/page_calculator.dart';
+import 'package:application/navigation/app_drawer.dart';
 import 'package:application/helper/data_chart.dart';
 import 'package:application/home/component_distribution.dart';
 import 'package:application/home/component_heatmap.dart';
@@ -29,7 +31,7 @@ class _PageDashboardState extends State<PageDashboard> {
   final _euroFormat = NumberFormat.simpleCurrency(locale: 'pt_PT', name: 'EUR');
 
   /// Current balance.
-  String _currentBalance = "";
+  double _currentBalance = 0.0;
 
   /// Is the dashboard loading.
   bool _isLoading = true;
@@ -93,6 +95,13 @@ class _PageDashboardState extends State<PageDashboard> {
         foregroundColor: Colors.white,
         titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
       ),
+
+      drawer: AppDrawer(
+        networth: _currentBalance,
+        euroFormat: _euroFormat,
+        onPageSelect: _onPageSelect,
+      ),
+
       body: Builder(
         builder: (context) {
           if (_isLoading == true) {
@@ -104,7 +113,7 @@ class _PageDashboardState extends State<PageDashboard> {
                 children: [
                   /// Networth widget.
                   ComponentNetworth(
-                    currentBalance: _currentBalance,
+                    currentBalance: _euroFormat.format(_currentBalance),
                     euroFormat: _euroFormat,
                     periodSpots: _periodSpots,
                     periodChange: _periodChange,
@@ -128,6 +137,7 @@ class _PageDashboardState extends State<PageDashboard> {
             else if (_selectedPage == 1) {
               return ListView.builder(
                 itemCount: _sourceNames.length,
+
                 itemBuilder: (BuildContext context, int index) {
                   final sourceName = _sourceNames[index];
                   final spots = _sourceSpotsByName[sourceName]!;
@@ -154,7 +164,7 @@ class _PageDashboardState extends State<PageDashboard> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
-            label: 'Home',
+            label: 'Overview',
             backgroundColor: Colors.white,
           ),
           BottomNavigationBarItem(

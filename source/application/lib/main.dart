@@ -1,3 +1,4 @@
+import 'package:application/calculator/page_calculator.dart';
 import 'package:application/index.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -30,6 +31,25 @@ class MainApp extends StatelessWidget {
       home: PageDashboard(),
       theme: ThemeData(scaffoldBackgroundColor: const Color(0xFF040C15)),
       debugShowCheckedModeBanner: false,
+      initialRoute: '/dashboard',
+      routes: {'/dashboard': (context) => const PageDashboard()},
+      onGenerateRoute: (settings) {
+        if (settings.name == '/calculator') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder:
+                (context) => PageCalculator(
+                  networth: args['networth'],
+                  euroFormat: args['euroFormat'],
+                ),
+          );
+        }
+        return MaterialPageRoute(
+          builder:
+              (context) =>
+                  const Scaffold(body: Center(child: Text('Page not found'))),
+        );
+      },
     );
   }
 }

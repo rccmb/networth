@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// Function that will connect to the database and fetch chart data.
 Future<
   ({
-    String currentBalance,
+    double currentBalance,
     List<List<FlSpot>> periodSpots,
     List<List<double>> periodChange,
     Map<String, double> sourceDistribution,
@@ -75,10 +75,7 @@ fetchAndProcessChartData(NumberFormat euroFormat) async {
           (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
         );
 
-  final currentBalance =
-      points.isNotEmpty
-          ? euroFormat.format(points.last['y'] as double)
-          : euroFormat.format(0);
+  final currentBalance = points.last['y'] as double;
 
   final Map<int, List<Map<String, dynamic>>> periodRawPoints = {
     0: [], // 1W
