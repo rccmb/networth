@@ -5,11 +5,13 @@ import 'package:intl/intl.dart';
 class ComponentTransaction extends StatefulWidget {
   final Transaction transaction;
   final NumberFormat euroFormat;
+  final void Function()? onDelete;
 
   const ComponentTransaction({
     super.key,
     required this.transaction,
     required this.euroFormat,
+    required this.onDelete,
   });
 
   @override
@@ -102,6 +104,61 @@ class _ComponentTransactionState extends State<ComponentTransaction> {
               Text(
                 t.description,
                 style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (_) => AlertDialog(
+                            backgroundColor: const Color(0xFF1E1E2C),
+                            title: const Text(
+                              "Delete Transaction",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            content: const Text(
+                              "Are you sure?",
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text(
+                                  "Delete",
+                                  style: TextStyle(color: Colors.redAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                    );
+
+                    if (confirmed == true) {
+                      widget.onDelete?.call();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                  ),
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  label: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
             ],
           ],

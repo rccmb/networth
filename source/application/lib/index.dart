@@ -1,9 +1,7 @@
 import 'package:application/helper/data_chart.dart';
-import 'package:application/helper/data_transactions.dart';
 import 'package:application/home/component_distribution.dart';
 import 'package:application/home/component_heatmap.dart';
 import 'package:application/home/component_networth.dart';
-import 'package:application/models/transaction.dart';
 import 'package:application/sources/component_source.dart';
 import 'package:application/transactions/component_transaction_list.dart';
 import 'package:flutter/material.dart';
@@ -54,9 +52,6 @@ class _PageDashboardState extends State<PageDashboard> {
   /// Daily total values.
   Map<DateTime, double> _dailyTotals = {};
 
-  /// Transactions list to be passed to the transactions screen.
-  List<Transaction> _transactions = [];
-
   /// Populating _periodSpots with the correct data.
   Future<void> _loadChartData() async {
     final result = await fetchAndProcessChartData(_euroFormat);
@@ -74,17 +69,9 @@ class _PageDashboardState extends State<PageDashboard> {
     });
   }
 
-  /// Populating the transactions.
-  Future<void> _loadTransactions() async {
-    final result = await fetchTransactions();
-    setState(() {
-      _transactions = result;
-    });
-  }
-
   /// Method responsible for loading relevant data.
   Future<void> _loadData() async {
-    await Future.wait([_loadChartData(), _loadTransactions()]);
+    await Future.wait([_loadChartData()]);
     setState(() {
       _isLoading = false;
     });
@@ -154,10 +141,7 @@ class _PageDashboardState extends State<PageDashboard> {
             }
             /// Third page, Transactions
             else {
-              return ComponentTransactionList(
-                euroFormat: _euroFormat,
-                transactions: _transactions,
-              );
+              return ComponentTransactionList(euroFormat: _euroFormat);
             }
           }
         },
