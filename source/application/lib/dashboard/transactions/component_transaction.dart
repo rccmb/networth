@@ -1,16 +1,16 @@
+import 'package:application/models/statement.dart';
 import 'package:application/models/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ComponentTransaction extends StatefulWidget {
   final Transaction transaction;
-  final NumberFormat euroFormat;
   final void Function()? onDelete;
 
   const ComponentTransaction({
     super.key,
     required this.transaction,
-    required this.euroFormat,
     required this.onDelete,
   });
 
@@ -29,12 +29,15 @@ class _ComponentTransactionState extends State<ComponentTransaction> {
 
   @override
   Widget build(BuildContext context) {
+    /// Gets the user statement.
+    final statement = Provider.of<Statement>(context);
+
     final t = widget.transaction;
     final formattedDate = DateFormat('yyyy-MM-dd').format(t.date);
     final formattedAmount =
         t.amount > 0
-            ? "+${widget.euroFormat.format(t.amount)}"
-            : widget.euroFormat.format(t.amount);
+            ? "+${statement.formatter.format(t.amount)}"
+            : statement.formatter.format(t.amount);
     final amountColor = t.amount >= 0 ? Colors.greenAccent : Colors.redAccent;
 
     return GestureDetector(

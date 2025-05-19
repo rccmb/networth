@@ -1,16 +1,10 @@
+import 'package:application/models/statement.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ComponentDistribution extends StatefulWidget {
-  final Map<String, double> sourceDistribution;
-  final NumberFormat euroFormat;
-
-  const ComponentDistribution({
-    super.key,
-    required this.sourceDistribution,
-    required this.euroFormat,
-  });
+  const ComponentDistribution({super.key});
 
   @override
   State<ComponentDistribution> createState() => _ComponentDistributionState();
@@ -18,10 +12,12 @@ class ComponentDistribution extends StatefulWidget {
 
 class _ComponentDistributionState extends State<ComponentDistribution> {
   /// Helper method to get the sections for the pie chart.
-  List<PieChartSectionData> _getSections() {
-    final total = widget.sourceDistribution.values.fold(0.0, (a, b) => a + b);
+  List<PieChartSectionData> _getSections(
+    Map<String, double> sourceDistribution,
+  ) {
+    final total = sourceDistribution.values.fold(0.0, (a, b) => a + b);
 
-    return widget.sourceDistribution.entries.map((entry) {
+    return sourceDistribution.entries.map((entry) {
       final percentage = entry.value / total;
 
       return PieChartSectionData(
@@ -57,6 +53,9 @@ class _ComponentDistributionState extends State<ComponentDistribution> {
   /// This is the widget that holds the pie chart for the different grouped values.
   @override
   Widget build(BuildContext context) {
+    /// Gets the user statement.
+    final statement = Provider.of<Statement>(context);
+
     return Container(
       margin: const EdgeInsets.all(15.0),
       padding: const EdgeInsets.all(20),
@@ -85,7 +84,7 @@ class _ComponentDistributionState extends State<ComponentDistribution> {
                 height: 200,
                 child: PieChart(
                   PieChartData(
-                    sections: _getSections(),
+                    sections: _getSections(statement.sourceDistribution),
                     sectionsSpace: 3,
                     centerSpaceRadius: 50,
                     pieTouchData: PieTouchData(enabled: true),
@@ -97,7 +96,7 @@ class _ComponentDistributionState extends State<ComponentDistribution> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "${widget.sourceDistribution.length} SOURCES",
+                    "${statement.sourceDistribution.length} SOURCES",
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -114,7 +113,7 @@ class _ComponentDistributionState extends State<ComponentDistribution> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children:
-                widget.sourceDistribution.entries.map((entry) {
+                statement.sourceDistribution.entries.map((entry) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Row(
@@ -129,7 +128,7 @@ class _ComponentDistributionState extends State<ComponentDistribution> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          "${entry.key} — ${widget.euroFormat.format(entry.value)}",
+                          "${entry.key} — ${statement.formatter.format(entry.value)}",
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ],

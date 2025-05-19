@@ -1,20 +1,12 @@
 import 'package:application/calculator/page_calculator.dart';
-import 'package:application/index.dart';
+import 'package:application/dashboard/page_dashboard.dart';
 import 'package:application/navigation/route_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class AppDrawer extends StatelessWidget {
-  final double networth;
-  final NumberFormat euroFormat;
   final void Function(int)? onPageSelect;
 
-  const AppDrawer({
-    super.key,
-    required this.networth,
-    required this.euroFormat,
-    this.onPageSelect,
-  });
+  const AppDrawer({super.key, this.onPageSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +54,7 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                createSlideRoute(
-                  PageCalculator(networth: networth, euroFormat: euroFormat),
-                ),
+                createSlideRoute(PageCalculator()),
               );
             },
           ),

@@ -1,21 +1,23 @@
+import 'package:application/models/statement.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ComponentSource extends StatelessWidget {
   final String sourceName;
   final List<FlSpot> spots;
-  final NumberFormat euroFormat;
 
   const ComponentSource({
     super.key,
     required this.sourceName,
     required this.spots,
-    required this.euroFormat,
   });
 
   @override
   Widget build(BuildContext context) {
+    /// Gets the user statement.
+    final statement = Provider.of<Statement>(context);
+
     final double start = spots.length >= 2 ? spots[1].y : 0;
     final double end = spots.isNotEmpty ? spots.last.y : 0;
     final double change = end - start;
@@ -70,7 +72,7 @@ class ComponentSource extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    euroFormat.format(end),
+                    statement.formatter.format(end),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -96,7 +98,7 @@ class ComponentSource extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    euroFormat.format(start),
+                    statement.formatter.format(start),
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ],
@@ -111,7 +113,7 @@ class ComponentSource extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "${change >= 0 ? "+" : ""}${euroFormat.format(change)}",
+                    "${change >= 0 ? "+" : ""}${statement.formatter.format(change)}",
                     style: TextStyle(
                       fontSize: 16,
                       color:
@@ -137,7 +139,7 @@ class ComponentSource extends StatelessWidget {
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
-                          euroFormat.format(spot.y),
+                          statement.formatter.format(spot.y),
                           TextStyle(color: spot.bar.color),
                         );
                       }).toList();

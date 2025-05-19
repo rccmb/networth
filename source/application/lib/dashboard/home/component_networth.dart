@@ -1,20 +1,10 @@
+import 'package:application/models/statement.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ComponentNetworth extends StatefulWidget {
-  final String currentBalance;
-  final NumberFormat euroFormat;
-  final List<List<FlSpot>> periodSpots;
-  final List<List<double>> periodChange;
-
-  const ComponentNetworth({
-    super.key,
-    required this.currentBalance,
-    required this.euroFormat,
-    required this.periodSpots,
-    required this.periodChange,
-  });
+  const ComponentNetworth({super.key});
 
   @override
   State<ComponentNetworth> createState() => _ComponentNetworthState();
@@ -38,6 +28,9 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
   /// This is the widget that holds the portfolio value graph, with time period selects.
   @override
   Widget build(BuildContext context) {
+    /// Gets the user statement.
+    final statement = Provider.of<Statement>(context);
+
     return Container(
       margin: const EdgeInsets.all(15.0),
       width: double.infinity,
@@ -62,7 +55,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
 
             /// Total Portfolio Value.
             Text(
-              widget.currentBalance.toString(),
+              statement.formatter.format(statement.networth),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,
@@ -85,8 +78,8 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      widget.euroFormat.format(
-                        widget.periodChange[_selectedPeriod][0],
+                      statement.formatter.format(
+                        statement.periodChange[_selectedPeriod][0],
                       ),
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
@@ -106,32 +99,32 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                     SizedBox(height: 4),
                     Builder(
                       builder: (context) {
-                        if (widget.periodChange[_selectedPeriod][1] -
-                                widget.periodChange[_selectedPeriod][0] >
+                        if (statement.periodChange[_selectedPeriod][1] -
+                                statement.periodChange[_selectedPeriod][0] >
                             0) {
                           return Text(
-                            "+${widget.euroFormat.format(widget.periodChange[_selectedPeriod][1] - widget.periodChange[_selectedPeriod][0])}",
+                            "+${statement.formatter.format(statement.periodChange[_selectedPeriod][1] - statement.periodChange[_selectedPeriod][0])}",
                             style: TextStyle(
                               color: Colors.greenAccent,
                               fontSize: 16,
                             ),
                           );
                         }
-                        if (widget.periodChange[_selectedPeriod][1] -
-                                widget.periodChange[_selectedPeriod][0] ==
+                        if (statement.periodChange[_selectedPeriod][1] -
+                                statement.periodChange[_selectedPeriod][0] ==
                             0) {
                           return Text(
-                            widget.euroFormat.format(
-                              widget.periodChange[_selectedPeriod][1] -
-                                  widget.periodChange[_selectedPeriod][0],
+                            statement.formatter.format(
+                              statement.periodChange[_selectedPeriod][1] -
+                                  statement.periodChange[_selectedPeriod][0],
                             ),
                             style: TextStyle(color: Colors.grey, fontSize: 16),
                           );
                         }
                         return Text(
-                          widget.euroFormat.format(
-                            widget.periodChange[_selectedPeriod][1] -
-                                widget.periodChange[_selectedPeriod][0],
+                          statement.formatter.format(
+                            statement.periodChange[_selectedPeriod][1] -
+                                statement.periodChange[_selectedPeriod][0],
                           ),
                           style: TextStyle(color: Colors.red, fontSize: 16),
                         );
@@ -157,7 +150,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                           return touchedSpots.map((touchedSpot) {
                             if (touchedSpot.barIndex == 0) {
                               return LineTooltipItem(
-                                widget.euroFormat.format(touchedSpot.y),
+                                statement.formatter.format(touchedSpot.y),
                                 TextStyle(color: touchedSpot.bar.color),
                               );
                             }
@@ -186,7 +179,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                       /// Data to be used in the chart, each "point".
                       /// Also handles styling.
                       LineChartBarData(
-                        spots: widget.periodSpots[_selectedPeriod],
+                        spots: statement.periodSpots[_selectedPeriod],
                         barWidth: 3,
                         isCurved: false,
                         color: Colors.lightBlueAccent,

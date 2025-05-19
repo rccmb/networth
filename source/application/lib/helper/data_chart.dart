@@ -1,5 +1,4 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Function that will connect to the database and fetch chart data.
@@ -13,7 +12,7 @@ Future<
     Map<DateTime, double> dailyTotals,
   })
 >
-fetchAndProcessChartData(NumberFormat euroFormat) async {
+fetchAndProcessChartData() async {
   final response = await Supabase.instance.client
       .from('daily_source_balance')
       .select()

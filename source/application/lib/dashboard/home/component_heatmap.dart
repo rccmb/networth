@@ -1,15 +1,10 @@
+import 'package:application/models/statement.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ComponentHeatmap extends StatefulWidget {
-  final Map<DateTime, double> dailyTotals;
-  final NumberFormat euroFormat;
-
-  const ComponentHeatmap({
-    super.key,
-    required this.dailyTotals,
-    required this.euroFormat,
-  });
+  const ComponentHeatmap({super.key});
 
   @override
   State<ComponentHeatmap> createState() => _ComponentHeatmapState();
@@ -77,11 +72,18 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
 
   @override
   Widget build(BuildContext context) {
+    /// Gets the user statement.
+    final statement = Provider.of<Statement>(context);
+
     final weeks = generateTrackedWeeks();
-    final dailyGains = calculateDailyGains(widget.dailyTotals);
+
+    /// Calculates the daily gains. Ex: 17 / 05 / 2025 -> +120.00€
+    final dailyGains = calculateDailyGains(statement.dailyTotals);
     final sortedDays =
         dailyGains.keys.toList()
           ..sort((a, b) => b.compareTo(a)); // Most recent first. Right square.
+
+    /// Calculates the average, min & max of daily gains.
     final dailyStats = calculateDailyStats(dailyGains);
 
     return Container(
@@ -126,8 +128,9 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                               const Duration(days: 1),
                             );
 
-                            final todayVal = widget.dailyTotals[day];
-                            final yesterdayVal = widget.dailyTotals[yesterday];
+                            final todayVal = statement.dailyTotals[day];
+                            final yesterdayVal =
+                                statement.dailyTotals[yesterday];
 
                             Color color;
                             if (todayVal != null && yesterdayVal != null) {
@@ -181,7 +184,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                     builder: (context) {
                       if (dailyStats["average"]! > 0) {
                         return Text(
-                          "+${widget.euroFormat.format(dailyStats["average"]!)}",
+                          "+${statement.formatter.format(dailyStats["average"]!)}",
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -192,7 +195,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else if (dailyStats["average"]! == 0) {
                         return Text(
-                          widget.euroFormat.format(dailyStats["average"]!),
+                          statement.formatter.format(dailyStats["average"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -203,7 +206,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else {
                         return Text(
-                          widget.euroFormat.format(dailyStats["average"]!),
+                          statement.formatter.format(dailyStats["average"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -231,7 +234,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                     builder: (context) {
                       if (dailyStats["minimum"]! > 0) {
                         return Text(
-                          "+${widget.euroFormat.format(dailyStats["minimum"]!)}",
+                          "+${statement.formatter.format(dailyStats["minimum"]!)}",
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -242,7 +245,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else if (dailyStats["minimum"]! == 0) {
                         return Text(
-                          widget.euroFormat.format(dailyStats["minimum"]!),
+                          statement.formatter.format(dailyStats["minimum"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -253,7 +256,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else {
                         return Text(
-                          widget.euroFormat.format(dailyStats["minimum"]!),
+                          statement.formatter.format(dailyStats["minimum"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -281,7 +284,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                     builder: (context) {
                       if (dailyStats["maximum"]! > 0) {
                         return Text(
-                          "+${widget.euroFormat.format(dailyStats["maximum"]!)}",
+                          "+${statement.formatter.format(dailyStats["maximum"]!)}",
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -292,7 +295,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else if (dailyStats["maximum"]! == 0) {
                         return Text(
-                          widget.euroFormat.format(dailyStats["maximum"]!),
+                          statement.formatter.format(dailyStats["maximum"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -303,7 +306,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
                         );
                       } else {
                         return Text(
-                          widget.euroFormat.format(dailyStats["maximum"]!),
+                          statement.formatter.format(dailyStats["maximum"]!),
                           style: Theme.of(
                             context,
                           ).textTheme.titleMedium?.copyWith(
@@ -350,10 +353,10 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
 
                   final formatted =
                       isPositive
-                          ? '+${widget.euroFormat.format(value)}'
+                          ? '+${statement.formatter.format(value)}'
                           : isNegative
-                          ? '-${widget.euroFormat.format(value.abs())}'
-                          : widget.euroFormat.format(0);
+                          ? '-${statement.formatter.format(value.abs())}'
+                          : statement.formatter.format(0);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),

@@ -1,14 +1,11 @@
 import 'package:application/helper/data_transactions.dart';
 import 'package:application/models/transaction.dart';
-import 'package:application/transactions/component_transaction.dart';
-import 'package:application/transactions/page_create_transaction.dart';
+import 'package:application/dashboard/transactions/component_transaction.dart';
+import 'package:application/dashboard/transactions/page_create_transaction.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class ComponentTransactionList extends StatefulWidget {
-  final NumberFormat euroFormat;
-
-  const ComponentTransactionList({super.key, required this.euroFormat});
+  const ComponentTransactionList({super.key});
 
   @override
   State<ComponentTransactionList> createState() =>
@@ -97,7 +94,6 @@ class _ComponentTransactionListState extends State<ComponentTransactionList> {
               return ComponentTransaction(
                 key: ValueKey(transactionsToShow[index].id),
                 transaction: transactionsToShow[index],
-                euroFormat: widget.euroFormat,
                 onDelete: () async {
                   bool success = await _deleteTransaction(
                     transactionsToShow[index].id,
