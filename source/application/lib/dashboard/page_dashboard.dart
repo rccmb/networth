@@ -31,10 +31,21 @@ class _PageDashboardState extends State<PageDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Networth"),
+        iconTheme: IconThemeData(color: Colors.white),
+        scrolledUnderElevation: 0.0,
         backgroundColor: const Color(0xFF040C15),
-        foregroundColor: Colors.white,
-        titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        title: RichText(
+          text: TextSpan(
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            children: const [
+              TextSpan(text: 'Net', style: TextStyle(color: Colors.white)),
+              TextSpan(
+                text: 'Worth',
+                style: TextStyle(color: Colors.cyanAccent),
+              ),
+            ],
+          ),
+        ),
       ),
 
       drawer: AppDrawer(onPageSelect: _onPageSelect),

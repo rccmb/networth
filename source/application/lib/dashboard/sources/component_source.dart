@@ -1,3 +1,4 @@
+import 'package:application/dashboard/home/widget_container.dart';
 import 'package:application/models/statement.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -22,18 +23,7 @@ class ComponentSource extends StatelessWidget {
     final double end = spots.isNotEmpty ? spots.last.y : 0;
     final double change = end - start;
 
-    return Container(
-      margin: const EdgeInsets.only(
-        right: 15.0,
-        left: 15.0,
-        top: 5.0,
-        bottom: 5.0,
-      ),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: const Color(0xFF1E1E2C),
-      ),
+    return WidgetContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

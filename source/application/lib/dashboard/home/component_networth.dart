@@ -32,12 +32,8 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
     final statement = Provider.of<Statement>(context);
 
     return Container(
-      margin: const EdgeInsets.all(15.0),
       width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: const Color(0xFF1E1E2C),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -45,7 +41,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
           children: [
             /// Portfolio Value Graph
             const Text(
-              "Networth",
+              "You are worth",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -73,7 +69,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'START',
+                      'PERIOD START',
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     SizedBox(height: 4),
@@ -93,7 +89,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'CHANGE',
+                      'PERIOD CHANGE',
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     SizedBox(height: 4),

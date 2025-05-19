@@ -1,3 +1,4 @@
+import 'package:application/dashboard/home/widget_container.dart';
 import 'package:application/models/statement.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -86,14 +87,7 @@ class _ComponentHeatmapState extends State<ComponentHeatmap> {
     /// Calculates the average, min & max of daily gains.
     final dailyStats = calculateDailyStats(dailyGains);
 
-    return Container(
-      margin: const EdgeInsets.all(15.0),
-      padding: const EdgeInsets.all(20.0),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: const Color(0xFF1E1E2C),
-      ),
+    return WidgetContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
