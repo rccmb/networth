@@ -9,24 +9,24 @@ class Statement extends ChangeNotifier {
     name: 'EUR',
   );
 
-  /// Current user networth.
+  /// Current user networth. GLOBAL.
   double networth = 0.0;
 
-  /// Array with the data that will be displayed in the networth chart.
+  /// Array with the data that will be displayed in the networth chart. GLOBAL.
   List<List<FlSpot>> periodSpots = List.filled(6, []);
 
-  /// Period changes for the networth texts. [PERIOD][START, NOW]. Stores all of the chart spots.
+  /// Period changes for the networth texts. [PERIOD][START, NOW]. Stores all of the chart spots. GLOBAL.
   final List<List<double>> periodChange = List.filled(6, [0, 0]);
 
-  /// Source spots grouped by name to be used in individual sources.
-  Map<String, List<FlSpot>> sourceSpotsByName = {};
+  /// Daily total values. To be used in the daily delta heatmap. GLOBAL.
+  Map<DateTime, double> dailyTotals = {};
 
-  /// The distribution of wealth per source { SOURCE, WEALTH }, to be used in the pie chart.
+  /// The distribution of wealth per source { SOURCE, WEALTH }, to be used in the pie chart. PER SOURCE.
   Map<String, double> sourceDistribution = {};
 
-  /// Names of the sources, ex: Degiro, CGD, XTB...
+  /// Names of the sources, ex: Degiro, CGD, XTB... PER SOURCE.
   List<String> sourceNames = [];
 
-  /// Daily total values. To be used in the daily delta heatmap.
-  Map<DateTime, double> dailyTotals = {};
+  /// Per-source, per-period chart spots. [source][period][spot]. PER SOURCE.
+  Map<String, List<List<FlSpot>>> sourcePeriodSpotsByName = {};
 }

@@ -60,10 +60,16 @@ class _PageDashboardState extends State<PageDashboard> {
                 ComponentNetworth(),
 
                 /// Distribution widget.
-                ComponentDistribution(),
+                Container(
+                  margin: EdgeInsets.all(10.0),
+                  child: ComponentDistribution(),
+                ),
 
                 // Heatmap widget.
-                ComponentHeatmap(),
+                Container(
+                  margin: EdgeInsets.all(10.0),
+                  child: ComponentHeatmap(),
+                ),
               ],
             );
           }
@@ -74,10 +80,22 @@ class _PageDashboardState extends State<PageDashboard> {
 
               itemBuilder: (BuildContext context, int index) {
                 final sourceName = statement.sourceNames[index];
-                final spots = statement.sourceSpotsByName[sourceName]!;
 
                 /// Returns a container with the statistics of a specific source.
-                return ComponentSource(sourceName: sourceName, spots: spots);
+                return Container(
+                  margin: EdgeInsets.only(
+                    left: 10.0,
+                    right: 10.0,
+                    top: 5.0,
+                    bottom: 5.0,
+                  ),
+                  child: ComponentSource(
+                    sourceName: sourceName,
+                    spots:
+                        statement.sourcePeriodSpotsByName[sourceName] ??
+                        List.filled(6, []),
+                  ),
+                );
               },
             );
           }

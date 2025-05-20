@@ -1,5 +1,51 @@
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+List<Map<String, dynamic>> generateMockStatements({
+  int days = 730,
+  double initialBalance = 3333.0, // Per source.
+  List<String> sources = const ['DEGIRO', 'XTB', 'CGD'],
+  double maxDailyChange = 0.05,
+  int maxRunId = 1000,
+}) {
+  final random = Random();
+  final List<Map<String, dynamic>> data = [];
+
+  for (final source in sources) {
+    DateTime date = DateTime.now().subtract(Duration(days: days));
+    double balance = initialBalance;
+    int runId = 1;
+
+    for (int i = 0; i < days && runId <= maxRunId; i++) {
+      final isDownturn = random.nextBool();
+
+      final dailyGrowth = pow(1.08, 1 / 365.0); // About 8% Annual growth.
+      final changePercent =
+          (random.nextDouble() * maxDailyChange * 2) - maxDailyChange;
+      final multiplier =
+          (isDownturn ? (1.0 - changePercent) : (1.0 + changePercent)) *
+          dailyGrowth;
+
+      balance = (balance * multiplier).clamp(0.0, double.infinity);
+
+      balance = double.parse(balance.toStringAsFixed(2));
+
+      data.add({
+        'id': 0, // Not important.
+        'source': source,
+        'balance': balance,
+        'date': date.toIso8601String(),
+        'run_id': runId++,
+      });
+
+      date = date.add(const Duration(days: 1));
+    }
+  }
+
+  return data;
+}
 
 /// Function that will connect to the database and fetch chart data.
 Future<
@@ -9,14 +55,17 @@ Future<
     List<List<double>> periodChange,
     Map<String, double> sourceDistribution,
     Map<String, List<FlSpot>> sourceSpotsByName,
+    Map<String, List<List<FlSpot>>> sourcePeriodSpotsByName,
     Map<DateTime, double> dailyTotals,
   })
 >
 fetchAndProcessChartData() async {
-  final response = await Supabase.instance.client
-      .from('daily_source_balance')
-      .select()
-      .order('date');
+  // final response = await Supabase.instance.client
+  //     .from('daily_source_balance')
+  //     .select()
+  //     .order('date');
+
+  final response = generateMockStatements();
 
   final Map<String, List<Map<String, dynamic>>> sourceRawPoints = {};
   for (final row in response) {
@@ -33,6 +82,66 @@ fetchAndProcessChartData() async {
     });
   }
 
+  final Map<String, List<List<FlSpot>>> sourcePeriodSpotsByName = {};
+  final Map<String, List<List<double>>> sourcePeriodChangesByName = {};
+
+  for (final entry in sourceRawPoints.entries) {
+    final source = entry.key;
+    final data =
+        entry.value..sort(
+          (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
+        );
+
+    final now = DateTime.now();
+    final periodRawPoints = {
+      0: <Map<String, dynamic>>[], // 1W
+      1: <Map<String, dynamic>>[], // 1M
+      2: <Map<String, dynamic>>[], // 3M
+      3: <Map<String, dynamic>>[], // YTD
+      4: <Map<String, dynamic>>[], // 1Y
+      5: <Map<String, dynamic>>[], // MAX
+    };
+
+    for (final point in data) {
+      final date = point['date'] as DateTime;
+      if (date.isAfter(now.subtract(Duration(days: 7)))) {
+        periodRawPoints[0]!.add(point);
+      }
+      if (date.isAfter(now.subtract(Duration(days: 30)))) {
+        periodRawPoints[1]!.add(point);
+      }
+      if (date.isAfter(now.subtract(Duration(days: 90)))) {
+        periodRawPoints[2]!.add(point);
+      }
+      if (date.year == now.year) {
+        periodRawPoints[3]!.add(point);
+      }
+      if (date.isAfter(now.subtract(Duration(days: 365)))) {
+        periodRawPoints[4]!.add(point);
+      }
+      periodRawPoints[5]!.add(point); // MAX
+    }
+
+    final List<List<FlSpot>> periodSpots = List.filled(6, []);
+    final List<List<double>> periodChange = List.generate(6, (_) => [0, 0]);
+
+    for (int i = 0; i < 6; i++) {
+      final rawList = periodRawPoints[i]!;
+      final List<FlSpot> spots = [];
+
+      for (int j = 0; j < rawList.length; j++) {
+        final y = rawList[j]['balance'] as double;
+        if (j == 0) periodChange[i][0] = y;
+        if (j == rawList.length - 1) periodChange[i][1] = y;
+        spots.add(FlSpot(j.toDouble(), y));
+      }
+      periodSpots[i] = spots;
+    }
+
+    sourcePeriodSpotsByName[source] = periodSpots;
+    sourcePeriodChangesByName[source] = periodChange;
+  }
+
   final Map<String, List<FlSpot>> sourceSpotsByName = {};
 
   for (final entry in sourceRawPoints.entries) {
@@ -42,9 +151,9 @@ fetchAndProcessChartData() async {
           (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
         );
 
-    final List<FlSpot> spots = [FlSpot(0, 0)];
+    final List<FlSpot> spots = [];
     for (int i = 0; i < data.length; i++) {
-      spots.add(FlSpot(i.toDouble() + 1, data[i]['balance']));
+      spots.add(FlSpot(i.toDouble(), data[i]['balance']));
     }
     sourceSpotsByName[source] = spots;
   }
@@ -112,12 +221,12 @@ fetchAndProcessChartData() async {
 
   for (int i = 0; i < 6; i++) {
     final rawList = periodRawPoints[i]!;
-    final List<FlSpot> spots = [FlSpot(0, 0)];
+    final List<FlSpot> spots = [];
     for (int j = 0; j < rawList.length; j++) {
       final y = rawList[j]['y'] as double;
       if (j == 0) periodChange[i][0] = y;
       if (j == rawList.length - 1) periodChange[i][1] = y;
-      spots.add(FlSpot(j.toDouble() + 1, y));
+      spots.add(FlSpot(j.toDouble(), y));
     }
     periodSpots[i] = spots;
   }
@@ -182,6 +291,7 @@ fetchAndProcessChartData() async {
     periodChange: periodChange,
     sourceDistribution: sourceDistribution,
     sourceSpotsByName: sourceSpotsByName,
+    sourcePeriodSpotsByName: sourcePeriodSpotsByName,
     dailyTotals: dailyTotals,
   );
 }

@@ -177,7 +177,7 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                       LineChartBarData(
                         spots: statement.periodSpots[_selectedPeriod],
                         barWidth: 3,
-                        isCurved: false,
+                        isCurved: true,
                         color: Colors.lightBlueAccent,
                         gradient: LinearGradient(
                           colors: [
@@ -190,17 +190,6 @@ class _ComponentNetworthState extends State<ComponentNetworth> {
                               end: Colors.blueAccent,
                             ).lerp(1)!,
                           ],
-                        ),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.lightBlueAccent.withValues(alpha: 0.2),
-                              Colors.lightBlueAccent.withValues(alpha: 0.0),
-                            ],
-                          ),
                         ),
                         dotData: FlDotData(show: false),
                       ),

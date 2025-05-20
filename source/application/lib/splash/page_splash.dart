@@ -39,8 +39,8 @@ class _PageSplashState extends State<PageSplash> {
 
     statement.networth = chartResult.currentBalance;
     statement.sourceDistribution = chartResult.sourceDistribution;
-    statement.sourceSpotsByName = chartResult.sourceSpotsByName;
     statement.sourceNames = chartResult.sourceSpotsByName.keys.toList();
+    statement.sourcePeriodSpotsByName = chartResult.sourcePeriodSpotsByName;
     statement.dailyTotals = chartResult.dailyTotals;
 
     for (int i = 0; i < 6; i++) {

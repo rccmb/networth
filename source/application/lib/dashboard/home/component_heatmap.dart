@@ -1,4 +1,4 @@
-import 'package:application/dashboard/home/widget_container.dart';
+import 'package:application/dashboard/widget_container.dart';
 import 'package:application/models/statement.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
